@@ -1,0 +1,29 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# SvelteKit / Vite / Build
+.svelte-kit/
+.vite/
+dist/
+build/
+.vercel/
+
+# Env files
+.env
+.env.*
+frontend/.env
+
+# Prisma (local dev artifacts)
+frontend/.prisma/
+frontend/prisma/*.db
+
+# Logs
+logs/
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db

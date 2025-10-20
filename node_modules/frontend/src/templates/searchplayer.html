@@ -1,0 +1,203 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Statslam | Search Player{% endblock %}</title>
+  {% load django_bootstrap5 %}
+  {% bootstrap_css %}
+  {% bootstrap_javascript %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'css/searchplayer.css' %}">
+
+  <!-- custom fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+
+<body style="font-family: Montserrat;">
+
+  <div class="container-fluid">
+
+    <div class="row" style="height: 100vh;">
+
+      <!------------------------- SIDE BAR --------------------------->
+      <div class="col-2 col-sm-3 col-xl-2" style="background-color: rgb(38, 38, 200);">
+
+        <div class="sticky-top">
+          <nav class="navbar border-bottom border-white mb-5">
+            <div class="container-fluid">
+              <img src="{% static 'img/StatSlamLogo.png' %}" style="margin: 0px 15px;" class="img-fluid">
+            </div>
+          </nav>
+
+          <nav class="navbar flex-column custom-text-style" style="align-items: center;">
+            <a class="nav-link custom-button-style" style="white-space: nowrap;" href="/">
+              <i class="bi bi-house-fill"></i> <span class="d-none d-sm-inline ms-2">Dashboard</span>
+            </a>
+
+            <a class="nav-link custom-button-style" style="white-space: nowrap;" href="masterstats">
+              <i class="bi bi-bar-chart-fill"></i> <span class="d-none d-sm-inline ms-2">Master Stats</span>
+            </a>
+
+            <a class="nav-link custom-button-style" style="white-space: nowrap;" href="#">
+              <i class="bi bi-people-fill"></i> <span class="d-none d-sm-inline ms-2">Players</span>
+            </a>
+
+            <a class="nav-link custom-button-style" style="white-space: nowrap;" href="#">
+              <i class="bi bi-wrench"></i> <span class="d-none d-sm-inline ms-2">Team Settings</span>
+            </a>
+
+            <div class="nav-link navbar"
+              style="color: white; font-weight: bold; margin-top: 15px; white-space: nowrap;">
+              <span class="d-none d-sm-inline ms-2">
+                <p>ACCOUNT PAGES</p>
+              </span>
+            </div>
+
+            <a class="nav-link custom-button-style" style="white-space: nowrap;" href="#">
+              <i class="bi bi-person-fill"></i> <span class="d-none d-sm-inline ms-2">Profile</span>
+            </a>
+
+            <a class="nav-link custom-button-style" style="white-space: nowrap;" href="#">
+              <i class="bi bi-arrow-90deg-left"></i> <span class="d-none d-sm-inline ms-2">Logout</span>
+            </a>
+          </nav>
+
+          <nav class="navbar">
+            <div class="about-us-container container-fluid d-none d-sm-inline">
+              <i class="bi bi-question-circle-fill about-us-icon"></i>
+              <p style="margin: 0; color: #FAAA11; font-size: 15px; font-weight: bold; line-height: 1.1;">
+                What is this about?</p>
+              <p style="margin: 0; color: #FAAA11; font-size: 9px; line-height: 1.1;">Check out our
+                gallery and about us</p>
+              <div>
+                <a class="actions-button-style" style="white-space: nowrap; margin-top: 20px;" href="#">
+                  ABOUT US <!--I USED THE BUTTON STYLE FOR THE QUICK ACTIONS SECTION-->
+                </a>
+              </div>
+            </div>
+          </nav>
+        </div>
+
+      </div>
+      <!------------------------- SIDE BAR --------------------------->
+
+
+      <!------------------------- MAIN CONTENT --------------------------->
+      <div class="col-10 col-sm-9 col-xl-10 p-0 m-0">
+
+        <div class="main-content">
+
+          <!------------------------- BLUE HEADER --------------------------->
+          <div class="d-inline-flex blue-header">
+            <div class="d-inline-flex" style="align-items: center; margin-left: 25px;">
+
+              <div>
+                <img src="{% static 'img/team-stats.png' %}" style="height: 140px;" class="img-fluid">
+                <!-- REPLACE IMAGE WITH ORIGINAL -->
+              </div>
+              <div style="color: white;">
+                <p style="margin-bottom: 0; font-size: 50px; font-weight: bold; line-height: 1.1;">
+                  Players
+                </p>
+                <p style="margin-bottom: 0; font-size: 15px; font-weight: 400;">
+                  Know more about the roster
+                </p>
+              </div>
+            </div>
+
+            <div class="d-inline-flex" style="align-items: center; margin-right: 50px;">
+
+              <div>
+                <img src="{% static 'img/ProfilePic.png' %}" style="margin: 0px 15px;" class="img-fluid">
+                <!-- REPLACE IMAGE WITH ORIGINAL -->
+              </div>
+
+              <div style="color: white;">
+
+                <p style="margin-bottom: 0; font-size: 20px; font-weight: bold; line-height: 1.1;">
+                  Steven Williams
+                </p>
+
+                <p style="margin-bottom: 0; font-size: 15px; font-weight: 200;">
+                  Head Coach
+                </p>
+
+              </div>
+            </div>
+          </div>
+          <!------------------------- BLUE HEADER --------------------------->
+
+          <!------------------------- SEARCH BAR ---------------------------->
+          <div class="search-bar">
+            <i class="icon-search">🔍</i>
+            <input type="text" placeholder="Search player name and number">
+          </div>
+          <!------------------------- SEARCH BAR ---------------------------->
+          <div class="summary-boxes">
+            <div class="summary-box">
+              <h3>Player Matches</h3>
+              <p>Details about recent performances.</p>
+            </div>
+            <div class="summary-box">
+              <h3>Average Points</h3>
+              <p>Statistical breakdown over time.</p>
+            </div>
+            <div class="summary-box">
+              <h3>Game Contributions</h3>
+              <p>Player impact scores.</p>
+            </div>
+          </div>
+          <!------------------------- TEAM ROSTERS TABLE --------------------------->
+          <div class="team-roster">
+            <h2>Team Rosters</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Player</th>
+                  <th>Position</th>
+                  <th>Number</th>
+                  <th>Last Game Play</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div>Gil Jose Penaflor<br><span class="email">gpenaflor@gbox.adnu.edu.ph</span></div>
+                  </td>
+                  <td>Center</td>
+                  <td><span class="badge">26</span></td>
+                  <td>02/06/25</td>
+                  <td><a class="edit-link" href="#">Edit</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!------------------------- TEAM ROSTERS TABLE --------------------------->
+          <!-------------------------- FOOTER -------------------------------------->
+          <footer>
+            <ul class="footer-links">
+              <li><a href="#">About Us</a></li>
+              <li><a href="#">FAQs</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">License</a></li>
+            </ul>
+            <p>Copyright @ 2025, StatSlam</p>
+          </footer>
+          <!-------------------------- FOOTER -------------------------------------->
+        </div>
+      </div>
+      <!------------------------- MAIN CONTENT --------------------------->
+
+    </div>
+
+  </div>
+</body>
+
+</html>

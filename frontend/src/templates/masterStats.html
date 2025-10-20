@@ -1,0 +1,366 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Statslam | Master Stats{% endblock %}</title>
+    {% load django_bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/masterStats.css' %}">
+
+    <!-- custom fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  </head>
+
+  <body style="font-family: Montserrat;">
+
+    <div class="container-fluid">
+
+      <div class="row" style="height: 100vh;">
+        
+        <!------------------------- SIDE BAR --------------------------->
+        <div class="col-2 col-sm-3 col-xl-2" style="background-color: rgb(38, 38, 200);">
+
+          <div class="sticky-top">
+            <nav class="navbar border-bottom border-white mb-5" data-bs-theme="dark">
+              <div class="container-fluid">
+                <img src="{% static 'img/StatSlamLogo.png' %}" style="margin: 0px 15px;" class="img-fluid"> <!-- REPLACE IMAGE WITH ORIGINAL -->
+              </div>
+            </nav>
+  
+            <nav class="navbar flex-column custom-text-style" style="align-items: center;">
+              <a class="nav-link custom-button-style" style="white-space: nowrap;" href="/"> <!--DASH BOARD HAS BEEN LINKED-->
+                <i class="bi bi-house-fill"></i> <span class="d-none d-sm-inline ms-2">Dashboard</span>
+              </a>
+  
+              <a class="nav-link active custom-button-style" style="white-space: nowrap;" href="#">
+                <i class="bi bi-bar-chart-fill"></i> <span class="d-none d-sm-inline ms-2">Master Stats</span>
+              </a>
+  
+              <a class="nav-link custom-button-style" style="white-space: nowrap;" href="#">
+                <i class="bi bi-people-fill"></i> <span class="d-none d-sm-inline ms-2">Players</span>
+              </a>
+  
+              <a class="nav-link custom-button-style" style="white-space: nowrap;" href="#">
+                <i class="bi bi-wrench"></i> <span class="d-none d-sm-inline ms-2">Team Settings</span>
+              </a>
+
+              <div class="nav-link navbar" style="color: white; font-weight: bold; margin-top: 15px; white-space: nowrap;">
+                <span class="d-none d-sm-inline ms-2"><p>ACCOUNT PAGES</p></span>
+              </div>
+
+              <a class="nav-link custom-button-style" style="white-space: nowrap;" href="#">
+                <i class="bi bi-person-fill"></i> <span class="d-none d-sm-inline ms-2">Profile</span>
+              </a>
+
+              <a class="nav-link custom-button-style" style="white-space: nowrap;" href="#">
+                <i class="bi bi-arrow-90deg-left"></i> <span class="d-none d-sm-inline ms-2">Logout</span>
+              </a>
+            </nav>
+
+            <nav class="navbar">
+              <div class="about-us-container container-fluid d-none d-sm-inline">
+                <i class="bi bi-question-circle-fill about-us-icon"></i>
+                <p style="margin: 0; color: #FAAA11; font-size: 15px; font-weight: bold; line-height: 1.1;">What is this about?</p>
+                <p style="margin: 0; color: #FAAA11; font-size: 9px; line-height: 1.1;">Check out our gallery and about us</p>
+                <div>
+                  <a class="about-us-button" style="white-space: nowrap; margin-top: 20px;" href="#">
+                    ABOUT US
+                  </a>
+                </div>
+              </div>
+            </nav>
+          </div>
+
+        </div>
+        <!------------------------- SIDE BAR --------------------------->
+
+
+        <!------------------------- MAIN CONTENT --------------------------->
+        <div class="col-10 col-sm-9 col-xl-10 p-0 m-0">
+
+          <div class="main-content">
+
+            <!------------------------- BLUE HEADER --------------------------->
+            <div class="d-inline-flex blue-header">
+              <div class="d-inline-flex" style="align-items: center; margin-left: 25px;">
+
+                <div>
+                  <img src="{% static 'img/master-stats-header-icon.png' %}" style="height: 110px;" class="img-fluid"> <!-- REPLACE IMAGE WITH ORIGINAL -->
+                </div>
+
+                <div style="color: white;">
+
+                  <p style="margin-bottom: 0; font-size: 50px; font-weight: bold; line-height: 1.1;">
+                    Master Stats
+                  </p>
+                  <p style="margin-bottom: 0; font-size: 15px; font-weight: 400;">
+                    All Player Stats
+                  </p>
+
+                </div>
+              </div>
+
+              <div class="d-inline-flex" style="align-items: center; margin-right: 50px;">
+                
+                <div>
+                  <img src="{% static 'img/ProfilePic.png' %}" class="img-fluid"> <!-- REPLACE IMAGE WITH ORIGINAL -->
+                </div>
+
+                <div style="color: white;">
+
+                  <p style="margin-bottom: 0; font-size: 20px; font-weight: bold; line-height: 1.1;">
+                    Steven Williams
+                  </p>
+
+                  <p style="margin-bottom: 0; font-size: 15px; font-weight: 200;">
+                    Head Coach
+                  </p>
+
+                </div>
+              </div>
+            </div>
+            <!------------------------- BLUE HEADER --------------------------->
+
+
+            <!------------------------- MASTER STATS TABLE --------------------------->
+            <div class="master-stats-table" style="margin-top: 50px; max-width: 1250px;">
+              <div class="d-flex justify-content-between" style="margin-bottom: 30px;">
+                <div class="d-flex justify-content-between" style="width: 350px;">
+                  <p style="font-weight: 500;">Ateneo Golden Knights Master Stats</p>
+                  <i class="bi bi-link-45deg"></i>
+                  <i class="bi bi-arrow-up-right"></i>
+                </div>
+                
+                <div class="d-flex justify-content-between" style="width: 100px;">
+                  <i class="bi bi-arrow-repeat"></i>
+                  <i class="bi bi-arrow-down"></i>
+                  <i class="bi bi-three-dots"></i>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between" style="width: 100px;">
+                <i class="bi bi-funnel"></i>
+                <i class="bi bi-plus"></i>
+                <p>Filter</p>
+              </div>
+
+              <p style="font-size: 13px; color: rgb(168, 166, 166);">
+                Showing <span style="font-weight: 600; color: black;">198</span> from <span style="font-weight: 600; color: black;">893</span> results
+              </p>
+
+              <div class="table-stats">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <td style="font-weight: bold;">Name</td>
+                      <td style="font-weight: bold;">Team</td>
+                      <td style="font-weight: bold;">PTS</td>
+                      <td style="font-weight: bold;">FGA</td>
+                      <td style="font-weight: bold;">FGM</td>
+                      <td style="font-weight: bold;">FG%</td>
+                      <td style="font-weight: bold;">3PA</td>
+                      <td style="font-weight: bold;">3PM</td>
+                      <td style="font-weight: bold;">3P%</td>
+                      <td style="font-weight: bold;">FTA</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Abrasaldo #10</td>
+                      <td>USI FALCONS</td>
+                      <td>9</td>
+                      <td>3</td>
+                      <td>1</td>
+                      <td>20.0%</td>
+                      <td>1</td>
+                      <td>0</td>
+                      <td>0.00%</td>
+                      <td>0</td>
+                    </tr>
+                    <!-- ////////////////////////////////////////////////////// -->
+                    <tr>
+                      <td>Monay #14</td>
+                      <td>ACC GREEN SERPENTS</td>
+                      <td>2</td>
+                      <td>4</td>
+                      <td>1</td>
+                      <td>20.22%</td>
+                      <td>3</td>
+                      <td>0</td>
+                      <td>0.00%</td>
+                      <td>0</td>
+                    </tr>
+                    <tr>
+                      <td>Magno #28</td>
+                      <td>NCF TIGERS</td>
+                      <td>8</td>
+                      <td>2</td>
+                      <td>1</td>
+                      <td>33.3%</td>
+                      <td>1</td>
+                      <td>0</td>
+                      <td>0.00%</td>
+                      <td>0</td>
+                    </tr>
+                    <tr>
+                      <td>Bare #29</td>
+                      <td>ACC GREEN SERPENTS</td>
+                      <td>0</td>
+                      <td>2</td>
+                      <td>1</td>
+                      <td>10.0%</td>
+                      <td>2</td>
+                      <td>0</td>
+                      <td>0.00%</td>
+                      <td>0</td>
+                    </tr>
+                    <tr>
+                      <td>Plaza #70</td>
+                      <td>ACBSUI PANTHERS</td>
+                      <td>0</td>
+                      <td>4</td>
+                      <td>3</td>
+                      <td>50.0%</td>
+                      <td>0</td>
+                      <td>0</td>
+                      <td>0.00%</td>
+                      <td>2</td>
+                    </tr>
+                    <tr>
+                      <td>Tripulca #3</td>
+                      <td>CSPC STALLIONS</td>
+                      <td>3</td>
+                      <td>5</td>
+                      <td>0</td>
+                      <td>0.00%</td>
+                      <td>3</td>
+                      <td>0</td>
+                      <td>0.00%</td>
+                      <td>0</td>
+                    </tr>
+                    <tr>
+                      <td>Almario #19</td>
+                      <td>ACC GREEN SERPENTS</td>
+                      <td>8</td>
+                      <td>5</td>
+                      <td>1</td>
+                      <td>24.5%</td>
+                      <td>1</td>
+                      <td>1</td>
+                      <td>50.0%</td>
+                      <td>0</td>
+                    </tr>
+                    <tr>
+                      <td>Remoto #23</td>
+                      <td>ACBSUI PANTHERS</td>
+                      <td>2</td>
+                      <td>2</td>
+                      <td>3</td>
+                      <td>22.2%</td>
+                      <td>0</td>
+                      <td>2</td>
+                      <td>70.0%</td>
+                      <td>0</td>
+                    </tr>
+                    <tr>
+                      <td>Valle #26</td>
+                      <td>USI FALCONS</td>
+                      <td>2</td>
+                      <td>2</td>
+                      <td>1</td>
+                      <td>55.5%</td>
+                      <td>2</td>
+                      <td>3</td>
+                      <td>80.0%</td>
+                      <td>1</td>
+                    </tr>
+                    <tr>
+                      <td>Aurellano #55</td>
+                      <td>USI FALCONS</td>
+                      <td>6</td>
+                      <td>3</td>
+                      <td>0</td>
+                      <td>0.00%</td>
+                      <td>3</td>
+                      <td>0</td>
+                      <td>0.00%</td>
+                      <td>0</td>
+                    </tr>
+                    <tr>
+                      <td>Madriano #7</td>
+                      <td>SVC RAMS</td>
+                      <td>12</td>
+                      <td>4</td>
+                      <td>1</td>
+                      <td>12.7%</td>
+                      <td>0</td>
+                      <td>0</td>
+                      <td>0.00%</td>
+                      <td>1</td>
+                    </tr>
+                    <tr>
+                      <td>Fulgar #13</td>
+                      <td>NCF TIGERS</td>
+                      <td>10</td>
+                      <td>3</td>
+                      <td>1</td>
+                      <td>12.5%</td>
+                      <td>0</td>
+                      <td>0</td>
+                      <td>0.00%</td>
+                      <td>0</td>
+                    </tr>
+                    <tr>
+                      <td>Beltran #16</td>
+                      <td>ACC GREEN SERPENTS</td>
+                      <td>5</td>
+                      <td>4</td>
+                      <td>1</td>
+                      <td>$213.91</td>
+                      <td>2</td>
+                      <td>3</td>
+                      <td>80.0%</td>
+                      <td>0</td>
+                    </tr>
+                    <tr>
+                      <td>Aguilar #18</td>
+                      <td>NCF TIGERS</td>
+                      <td>2</td>
+                      <td>5</td>
+                      <td>0</td>
+                      <td>0.00%</td>
+                      <td>3</td>
+                      <td>1</td>
+                      <td>50.0%</td>
+                      <td>0</td>
+                    </tr>
+                    <tr>
+                      <td>Bongala #21</td>
+                      <td>SVC RAMS</td>
+                      <td>3</td>
+                      <td>1</td>
+                      <td>0</td>
+                      <td>0.00%</td>
+                      <td>0</td>
+                      <td>0</td>
+                      <td>0.00%</td>
+                      <td>2</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!------------------------- MASTER STATS TABLE --------------------------->
+          </div>
+        </div>
+        <!------------------------- MAIN CONTENT --------------------------->
+      </div>
+    </div>
+  </body>
+</html>

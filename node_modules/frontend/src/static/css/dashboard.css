@@ -1,0 +1,202 @@
+html, body {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.main-content {
+  flex: 1;
+  padding-left: 180px;
+  padding-top: 70px;
+}
+
+
+/* -------------------------- SIDE BAR ----------------------------- */
+.custom-text-style {
+  font-size: 20px;
+}
+
+.custom-button-style {
+  width: 210px;
+  padding: 10px;
+  font-weight: bold;
+  font-size: 15px;
+  align-items: center;
+  margin-bottom: 5px;
+  border-radius: 10px;
+  color: white;
+  text-decoration: none;
+  transition: box-shadow 0.30s, background-color 0.30s, color 0.30s;
+}
+
+@media (max-width: 576px) {
+  .custom-button-style {
+    width: 48px;
+    padding: 0.5rem;
+    justify-content: center;
+  }
+}
+
+.custom-button-style i {
+  display: inline-block;
+  background-color: white;
+  color: #FAAA11;
+  border-radius: 10px;
+  width: 30px;
+  height: 30px;
+  justify-content: center;
+  padding-top: 4px;
+  padding-left: 7px;
+  transition: background-color 0.30s, color 0.30s
+}
+
+.custom-button-style:hover { /* HOVER BUTTONS */
+  background-color: white;
+  color: black;
+  box-shadow: 0.1px 5px 10px rgba(0, 0, 0, 0.20);
+}
+
+.custom-button-style:hover i { /* HOVER BUTTONS */
+  color: white;
+  background-color: #FAAA11;
+}
+
+.custom-button-style.active { /* ACTIVE BUTTONS */
+  background-color: white;
+  color: black;
+  box-shadow: 0.1px 5px 10px rgba(0, 0, 0, 0.20);
+}
+
+.custom-button-style.active i { /* ACTIVE BUTTONS */
+  color: white;
+  background-color: #FAAA11;
+}
+
+.about-us-container {
+  width: 230px;
+  height: auto;
+  margin-top: 40px;
+  padding: 15px;
+  background-color: white;
+  background-image: linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)), url(../images/golden-knight.jpg);
+  background-size: 300px;
+  background-position: 95px;
+  background-repeat: no-repeat;
+  border-radius: 15px;
+  box-shadow: 0px 7px 10px 5px rgba(0, 0, 0, 0.20);
+}
+
+.about-us-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  width: 35px;
+  height: 35px;
+  color: white;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  background-color: #FAAA11;
+}
+/* -------------------------- SIDE BAR ----------------------------- */
+
+
+
+/* -------------------------- BLUE HEADER ----------------------------- */
+.blue-header {
+  border-radius: 10px;
+  width: 100%;
+  max-width: 1250px;
+  height: 140px;
+  background-color: rgb(38, 38, 200);
+  box-shadow: 0px 3px 10px 5px rgba(0, 0, 0, 0.20);
+  justify-content: space-between;
+}
+/* -------------------------- BLUE HEADER ----------------------------- */
+
+
+
+/* -------------------------- QUICK ACTIONS ----------------------------- */
+.quick-actions-tabs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 10px;
+  width: 270px;
+  padding: 10px;
+  padding-bottom: 20px;
+  box-shadow: 0px 7px 10px 5px rgba(0, 0, 0, 0.20);
+}
+
+.actions-button-style {
+  display: inline-block;
+  width: 200px;
+  text-align: center;
+  background-color: #FAAA11;
+  color: white;
+  border-radius: 10px;
+  padding: 5px;
+  font-weight: bold;
+  text-decoration: none;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.20);
+}
+/* -------------------------- QUICK ACTIONS ----------------------------- */
+
+
+
+/* -------------------------- TEAM ROSTERS TABLE ----------------------------- */
+.team-rosters-table {
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 50px;
+  height: 410px;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.20);
+}
+
+.table-container::-webkit-scrollbar {
+  width: 0.5vw;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background-color: rgb(206, 206, 206);
+  border-radius: 2vw;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background-color: blue;
+  border-radius: 2vw;
+}
+
+table th {
+  position: sticky;
+  top: 0;
+  font-size: 12px;
+}
+
+.table td {
+  padding: 5px;
+}
+
+table th::after { /* BOTTOM BORDER FOR THE TABLE HEADER */
+  content: '';
+  width: 100%;
+  height: 1px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background: rgb(224, 224, 224);
+}
+
+table tbody tr td button {
+  border: none;
+  background-color: white;
+  color: #FAAA11;
+}
+
+.number-highlight {
+  background-color: rgb(33, 209, 33);
+  color: white;
+  border-radius: 15px;
+  padding: 5px;
+  width: 5px;
+  height: 5px;
+}
