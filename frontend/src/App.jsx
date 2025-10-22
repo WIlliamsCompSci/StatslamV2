@@ -1,25 +1,17 @@
-import { useEffect, useState } from 'react';
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import StatSlamDashboard from "./StatSlamDashboard";
+import MasterStats from "./MasterStats";
+import SearchPlayer from "./SearchPlayer";
 
-function App() {
-  const [athletes, setAthletes] = useState([]);
-
-  useEffect(() => {
-    fetch('/api/athletes')
-      .then((r) => r.json())
-      .then(setAthletes)
-      .catch(console.error);
-  }, []);
-
+export default function App() {
   return (
-    <div style={{ padding: 16 }}>
-      <h1>StatSlam Athletes</h1>
-      <ul>
-        {athletes.map((a) => (
-          <li key={a._id || a.id}>{a.name} {a.team ? `(${a.team})` : ''}</li>
-        ))}
-      </ul>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<StatSlamDashboard />} />
+        <Route path="/masterstats" element={<MasterStats />} />
+        <Route path="/searchplayer" element={<SearchPlayer />} /> 
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;
