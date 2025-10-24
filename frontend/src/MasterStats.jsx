@@ -37,6 +37,54 @@ const rows = [
 ];
 
 export default function MasterStats() {
+  const [filterOpen, setFilterOpen] = React.useState(false);
+  const [query, setQuery] = React.useState("");
+
+  const filteredRows = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter((r) => {
+      const name = String(r[0]).toLowerCase();
+      const team = String(r[1]).toLowerCase();
+      return name.includes(q) || team.includes(q);
+    });
+  }, [query]);
+
+  function handleCopyLink() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(
+      () => console.log("Copied link:", url),
+      () => console.warn("Failed to copy link.")
+    );
+  }
+
+  function handleOpenInNewTab() {
+    window.open(window.location.href, "_blank");
+  }
+
+  function handleRefresh() {
+    setQuery("");
+    setFilterOpen(false);
+    console.log("Refreshed view.");
+  }
+
+  function handleDownloadCsv() {
+    const headers = ["Name", "Team", "PTS", "FGA", "FGM", "FG%", "3PA", "3PM", "3P%", "FTA"];
+    const csv =
+      [headers.join(","), ...filteredRows.map((r) => r.map(String).join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "master-stats.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function handleMore() {
+    console.log("More actions clicked.");
+    alert("More actions coming soon.");
+  }
   return (
     <div className="app-shell">
       {/* ===== Shared Sidebar (with icons) ===== */}
@@ -107,26 +155,88 @@ export default function MasterStats() {
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 18 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <p style={{ margin: 0, fontWeight: 600 }}>Ateneo Golden Knights Master Stats</p>
-                    <LinkIcon size={16} />
-                    <ArrowUpRight size={16} />
+                    <button
+                      type="button"
+                      onClick={handleCopyLink}
+                      title="Copy link"
+                      style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                    >
+                      <LinkIcon size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleOpenInNewTab}
+                      title="Open in new tab"
+                      style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                    >
+                      <ArrowUpRight size={16} />
+                    </button>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <RefreshCcw size={16} />
-                    <Download size={16} />
-                    <MoreVertical size={16} />
+                    <button
+                      type="button"
+                      onClick={handleRefresh}
+                      title="Refresh"
+                      style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                    >
+                      <RefreshCcw size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDownloadCsv}
+                      title="Download CSV"
+                      style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                    >
+                      <Download size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleMore}
+                      title="More"
+                      style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                    >
+                      <MoreVertical size={16} />
+                    </button>
                   </div>
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                  <Filter size={16} />
-                  <Plus size={16} />
+                  <button
+                    type="button"
+                    onClick={() => setFilterOpen((v) => !v)}
+                    title="Toggle filter"
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                  >
+                    <Filter size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQuery("")}
+                    title="Clear filter"
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                  >
+                    <Plus size={16} />
+                  </button>
                   <p style={{ margin: 0 }}>Filter</p>
                 </div>
 
-                <p style={{ fontSize: 13, color: "rgb(168, 166, 166)", marginBottom: 12 }}>
-                  Showing <span style={{ fontWeight: 600, color: "black" }}>198</span> from{" "}
-                  <span style={{ fontWeight: 600, color: "black" }}>893</span> results
-                </p>
+                {filterOpen && (
+                  <div style={{ marginBottom: 10 }}>
+                    <input
+                      type="text"
+                      placeholder="Filter by player name or team"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "8px 10px",
+                        borderRadius: 6,
+                        border: "1px solid #ddd",
+                        fontSize: 13,
+                      }}
+                    />
+                  </div>
+                )}
 
                 {/* Table */}
                 <div className="table-container" style={{ maxHeight: 460 }}>
@@ -146,7 +256,7 @@ export default function MasterStats() {
                       </tr>
                     </thead>
                     <tbody>
-                      {rows.map((r, i) => (
+                      {filteredRows.map((r, i) => (
                         <tr key={i}>
                           {r.map((c, j) => <td key={j}>{c}</td>)}
                         </tr>
