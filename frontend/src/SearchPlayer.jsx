@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./dashboard.css";
 import "./searchplayer.css";
 import {
@@ -12,24 +12,41 @@ import {
   Search as SearchIcon,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "./firebase";
 
-// Dummy roster (replace with real data if you have it)
-const roster = [
-  { id: 1, name: "Gil Jose Penaflor", email: "gpenaflor@gbox.adnu.edu.ph", position: "Center", number: 26, lastGame: "02/06/25" },
-  { id: 2, name: "Francis Dave Asico", email: "fasico@gbox.adnu.edu.ph", position: "Power Forward", number: 16, lastGame: "02/06/25" },
-  { id: 3, name: "Albert Gian O. Ocfemia", email: "agocfemia@gbox.adnu.edu.ph", position: "Point Guard", number: 45, lastGame: "02/06/25" },
-];
+// Players are now loaded from Firestore collection `players`
 
 export default function SearchPlayer() {
+  const [players, setPlayers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    async function loadPlayers() {
+      try {
+        const snap = await getDocs(collection(db, "players"));
+        const docs = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setPlayers(docs);
+      } catch (err) {
+        console.error("Failed to load players from Firestore", err);
+        setError("Failed to load players");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadPlayers();
+  }, []);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return roster;
-    return roster.filter(
+    const source = players;
+    if (!q) return source;
+    return source.filter(
       (p) => p.name.toLowerCase().includes(q) || String(p.number).includes(q)
     );
-  }, [query]);
+  }, [players, query]);
 
   return (
     <div className="app-shell">
@@ -123,9 +140,15 @@ export default function SearchPlayer() {
           {/* Scrollable content area */}
           <div className="content-scroll">
             <div className="content-inner">
-              {/* Team Roster Table */}
+            {/* Team Roster Table */}
               <div className="team-roster">
                 <h2>Team Rosters</h2>
+              {loading && (
+                <p style={{ padding: 12 }}>Loading players…</p>
+              )}
+              {error && !loading && (
+                <p style={{ padding: 12, color: "red" }}>{error}</p>
+              )}
                 <table>
                   <thead>
                     <tr>

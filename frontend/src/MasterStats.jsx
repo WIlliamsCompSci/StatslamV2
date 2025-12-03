@@ -17,28 +17,44 @@ import {
   Filter,
   Plus,
 } from "lucide-react";
-
-const rows = [
-  ["Abrasaldo #10", "USI FALCONS", 9, 3, 1, "20.0%", 1, 0, "0.00%", 0],
-  ["Monay #14", "ACC GREEN SERPENTS", 2, 4, 1, "20.22%", 3, 0, "0.00%", 0],
-  ["Magno #28", "NCF TIGERS", 8, 2, 1, "33.3%", 1, 0, "0.00%", 0],
-  ["Bare #29", "ACC GREEN SERPENTS", 0, 2, 1, "10.0%", 2, 0, "0.00%", 0],
-  ["Plaza #70", "ACBSUI PANTHERS", 0, 4, 3, "50.0%", 0, 0, "0.00%", 2],
-  ["Tripulca #3", "CSPC STALLIONS", 3, 5, 0, "0.00%", 3, 0, "0.00%", 0],
-  ["Almario #19", "ACC GREEN SERPENTS", 8, 5, 1, "24.5%", 1, 1, "50.0%", 0],
-  ["Remoto #23", "ACBSUI PANTHERS", 2, 2, 3, "22.2%", 0, 2, "70.0%", 0],
-  ["Valle #26", "USI FALCONS", 2, 2, 1, "55.5%", 2, 3, "80.0%", 1],
-  ["Aurellano #55", "USI FALCONS", 6, 3, 0, "0.00%", 3, 0, "0.00%", 0],
-  ["Madriano #7", "SVC RAMS", 12, 4, 1, "12.7%", 0, 0, "0.00%", 1],
-  ["Fulgar #13", "NCF TIGERS", 10, 3, 1, "12.5%", 0, 0, "0.00%", 0],
-  ["Beltran #16", "ACC GREEN SERPENTS", 5, 4, 1, "21.3%", 2, 3, "80.0%", 0],
-  ["Aguilar #18", "NCF TIGERS", 2, 5, 0, "0.00%", 3, 1, "50.0%", 0],
-  ["Bongala #21", "SVC RAMS", 3, 1, 0, "0.00%", 0, 0, "0.00%", 2],
-];
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "./firebase";
 
 export default function MasterStats() {
+  const [rows, setRows] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
   const [filterOpen, setFilterOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
+
+  React.useEffect(() => {
+    async function loadStats() {
+      try {
+        const snap = await getDocs(collection(db, "masterStats"));
+        // Expecting each doc to have fields matching the columns used below
+        const docs = snap.docs.map((doc) => doc.data());
+        const mapped = docs.map((d) => [
+          d.name,
+          d.team,
+          d.pts,
+          d.fga,
+          d.fgm,
+          d.fgPct,
+          d.threePa,
+          d.threePm,
+          d.threePct,
+          d.fta,
+        ]);
+        setRows(mapped);
+      } catch (err) {
+        console.error("Failed to load master stats from Firestore", err);
+        setError("Failed to load master stats");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadStats();
+  }, []);
 
   const filteredRows = React.useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -240,6 +256,10 @@ export default function MasterStats() {
 
                 {/* Table */}
                 <div className="table-container" style={{ maxHeight: 460 }}>
+                  {loading && <p style={{ padding: 8 }}>Loading stats…</p>}
+                  {error && !loading && (
+                    <p style={{ padding: 8, color: "red" }}>{error}</p>
+                  )}
                   <table className="table">
                     <thead>
                       <tr>
