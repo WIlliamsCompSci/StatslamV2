@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
 import "./dashboard.css";
 import "./searchplayer.css";
 import {
@@ -10,33 +12,39 @@ import {
   LogOut as LogOutIcon,
   CircleHelp,
   Search as SearchIcon,
+  Plus,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "./firebase";
-
-// Players are now loaded from Firestore collection `players`
+import { collection, onSnapshot } from "firebase/firestore";
+import { db, auth } from "./firebase";
+import AddPlayerForm from "./components/AddPlayerForm";
 
 export default function SearchPlayer() {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [query, setQuery] = useState("");
+  const [showAddPlayerForm, setShowAddPlayerForm] = useState(false);
+  const navigate = useNavigate();
 
+  // Firestore real-time listener: Use onSnapshot to update players without page refresh
   useEffect(() => {
-    async function loadPlayers() {
-      try {
-        const snap = await getDocs(collection(db, "players"));
-        const docs = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const unsubscribe = onSnapshot(
+      collection(db, "players"),
+      (snapshot) => {
+        const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setPlayers(docs);
-      } catch (err) {
+        setLoading(false);
+        setError(null);
+      },
+      (err) => {
         console.error("Failed to load players from Firestore", err);
         setError("Failed to load players");
-      } finally {
         setLoading(false);
       }
-    }
-    loadPlayers();
+    );
+
+    return () => unsubscribe();
   }, []);
 
   const filtered = useMemo(() => {
@@ -44,9 +52,21 @@ export default function SearchPlayer() {
     const source = players;
     if (!q) return source;
     return source.filter(
-      (p) => p.name.toLowerCase().includes(q) || String(p.number).includes(q)
+      (p) => 
+        p.name?.toLowerCase().includes(q) || 
+        String(p.jerseyNumber || p.number || "").includes(q) ||
+        p.position?.toLowerCase().includes(q)
     );
   }, [players, query]);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate("/");
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  };
 
   return (
     <div className="app-shell">
@@ -57,9 +77,9 @@ export default function SearchPlayer() {
         </div>
 
         <nav className="flex flex-col items-center gap-2 px-3 py-5 custom-text-style">
-          <SidebarLink to="/"            label="Dashboard"    icon={Home} />
-          <SidebarLink to="/masterstats" label="Master Stats" icon={PieChart} />
-          <SidebarLink to="/searchplayer" label="Players"     icon={Users} />
+          <SidebarLink to="/dashboard"            label="Dashboard"    icon={Home} />
+          <SidebarLink to="/stats" label="Master Stats" icon={PieChart} />
+          <SidebarLink to="/players" label="Players"     icon={Users} />
           <SidebarLink to="/team"        label="Team Settings" icon={Wrench} />
 
           <div className="w-full mt-2" style={{ fontSize: 12, fontWeight: 800, opacity: 0.9, paddingLeft: 16 }}>
@@ -67,7 +87,14 @@ export default function SearchPlayer() {
           </div>
 
           <SidebarLink to="/profile" label="Profile" icon={UserIcon} />
-          <SidebarLink to="/logout"  label="Log Out" icon={LogOutIcon} />
+          <button
+            onClick={handleLogout}
+            className="custom-button-style"
+            style={{ background: "none", border: "none", cursor: "pointer", width: "210px" }}
+          >
+            <LogOutIcon className="h-4 w-4" />
+            <span className="d-none d-sm-inline">Log Out</span>
+          </button>
         </nav>
 
         <div className="px-4 pb-6 mt-auto">
@@ -142,7 +169,28 @@ export default function SearchPlayer() {
             <div className="content-inner">
             {/* Team Roster Table */}
               <div className="team-roster">
-                <h2>Team Rosters</h2>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <h2 style={{ margin: 0 }}>Team Rosters</h2>
+                  <button
+                    onClick={() => setShowAddPlayerForm(true)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "8px 16px",
+                      background: "#2432e3",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 8,
+                      cursor: "pointer",
+                      fontWeight: 600,
+                      fontSize: 14,
+                    }}
+                  >
+                    <Plus size={16} />
+                    Add Player
+                  </button>
+                </div>
               {loading && (
                 <p style={{ padding: 12 }}>Loading players…</p>
               )}
@@ -165,13 +213,17 @@ export default function SearchPlayer() {
                         <td>
                           <div>
                             {p.name}
-                            <br />
-                            <span className="email">{p.email}</span>
+                            {p.email && (
+                              <>
+                                <br />
+                                <span className="email">{p.email}</span>
+                              </>
+                            )}
                           </div>
                         </td>
                         <td>{p.position}</td>
-                        <td><span className="badge">{p.number}</span></td>
-                        <td>{p.lastGame}</td>
+                        <td><span className="badge">{p.jerseyNumber || p.number}</span></td>
+                        <td>{p.lastGame || "—"}</td>
                         <td><a className="edit-link" href="#">Edit</a></td>
                       </tr>
                     ))}
@@ -200,6 +252,12 @@ export default function SearchPlayer() {
           </div>
         </div>
       </main>
+      {showAddPlayerForm && (
+        <AddPlayerForm
+          onClose={() => setShowAddPlayerForm(false)}
+          onSuccess={() => setShowAddPlayerForm(false)}
+        />
+      )}
     </div>
   );
 }
@@ -212,7 +270,7 @@ function SidebarLink({ to, label, icon: Icon }) {
       className={({ isActive }) =>
         `custom-button-style ${isActive ? "active" : ""}`
       }
-      end={to === "/"}
+      end={to === "/dashboard"}
     >
       <Icon className="h-4 w-4" />
       <span className="d-none d-sm-inline">{label}</span>

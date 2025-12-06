@@ -1,5 +1,7 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { collection, onSnapshot } from "firebase/firestore";
 import "./dashboard.css";
 import {
   Home,
@@ -9,18 +11,46 @@ import {
   User as UserIcon,
   LogOut as LogOutIcon,
   CircleHelp,
+  Plus,
 } from "lucide-react";
-
-const players = [
-  { id: 1, name: "Gil Jose Penaflor", email: "gpenaflor@gbox.adnu.edu.ph", position: "Center", number: 26, lastGame: "02/06/25", badge: "/img/number-1.png" },
-  { id: 2, name: "Francis Dave Asico", email: "fasico@gbox.adnu.edu.ph", position: "Power Forward", number: 16, lastGame: "02/06/25", badge: "/img/number-2.png" },
-  { id: 3, name: "Albert Gian O. Ocfemia", email: "agocfemia@gbox.adnu.edu.ph", position: "Point Guard", number: 45, lastGame: "02/06/25", badge: "/img/number-3.png" },
-  { id: 4, name: "Arvin A. Tripulca", email: "atripulca@gbox.adnu.edu.ph", position: "Small Forward", number: 29, lastGame: "01/18/25", badge: "/img/number-4.png" },
-  { id: 5, name: "Jerome Almario", email: "jalmario@gbox.adnu.edu.ph", position: "Center", number: 89, lastGame: "02/06/25", badge: "/img/number-5.png" },
-  { id: 6, name: "Solomon Aurellano", email: "saurellano@gbox.adnu.edu.ph", position: "Shooting Guard", number: 55, lastGame: "01/10/25", badge: "/img/number-6.png" },
-];
+import { db, auth } from "./firebase";
+import AddPlayerForm from "./components/AddPlayerForm";
 
 export default function Dashboard() {
+  const [players, setPlayers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showAddPlayerForm, setShowAddPlayerForm] = useState(false);
+  const navigate = useNavigate();
+
+  // Firestore real-time listener: Use onSnapshot to update players without page refresh
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(db, "players"),
+      (snapshot) => {
+        const docs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setPlayers(docs);
+        setLoading(false);
+        setError(null);
+      },
+      (err) => {
+        console.error("Error loading players:", err);
+        setError("Failed to load players");
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate("/");
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  };
   return (
     <div className="app-shell">
       {/* ===== Sidebar ===== */}
@@ -30,9 +60,9 @@ export default function Dashboard() {
         </div>
 
         <nav className="flex flex-col items-center gap-2 px-3 py-5 custom-text-style">
-          <SidebarLink to="/" label="Dashboard" icon={Home} />
-          <SidebarLink to="/masterstats" label="Master Stats" icon={PieChart} />
-          <SidebarLink to="/searchplayer" label="Players" icon={Users} />
+          <SidebarLink to="/dashboard" label="Dashboard" icon={Home} />
+          <SidebarLink to="/stats" label="Master Stats" icon={PieChart} />
+          <SidebarLink to="/players" label="Players" icon={Users} />
           <SidebarLink to="/team" label="Team Settings" icon={Wrench} />
 
           <div className="w-full mt-2" style={{ fontSize: 12, fontWeight: 800, opacity: 0.9, paddingLeft: 16 }}>
@@ -40,7 +70,14 @@ export default function Dashboard() {
           </div>
 
           <SidebarLink to="/profile" label="Profile" icon={UserIcon} />
-          <SidebarLink to="/logout" label="Log Out" icon={LogOutIcon} />
+          <button
+            onClick={handleLogout}
+            className="custom-button-style"
+            style={{ background: "none", border: "none", cursor: "pointer", width: "210px" }}
+          >
+            <LogOutIcon className="h-4 w-4" />
+            <span className="d-none d-sm-inline">Log Out</span>
+          </button>
         </nav>
 
         <div className="px-4 pb-6 mt-auto">
@@ -85,18 +122,43 @@ export default function Dashboard() {
             {/* Quick Actions */}
             <div className="section-label">Quick Actions</div>
             <div className="quick-actions-row">
-              <QuickAction img="/img/search-player.png" label="SEARCH PLAYER" href="/searchplayer" />
+              <QuickAction img="/img/search-player.png" label="SEARCH PLAYER" href="/players" />
               <QuickAction img="/img/team-stats.png" label="TEAM STATS" href="#" />
-              <QuickAction img="/img/master-stats.png" label="MASTER STATS" href="/masterstats" />
+              <QuickAction img="/img/master-stats.png" label="MASTER STATS" href="/stats" />
               <QuickAction img="/img/input-metrics.png" label="INPUT METRICS" href="#" />
             </div>
           </div>
 
-          {/* Team Rosters */}
+              {/* Team Rosters */}
           <div className="content-scroll">
             <div className="content-inner">
               <section className="team-rosters-table">
-                <p style={{ fontWeight: 800, fontSize: 18, margin: "6px 0 10px" }}>Team Rosters</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                  <p style={{ fontWeight: 800, fontSize: 18, margin: "6px 0" }}>Team Rosters</p>
+                  <button
+                    onClick={() => setShowAddPlayerForm(true)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "8px 16px",
+                      background: "#2432e3",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 8,
+                      cursor: "pointer",
+                      fontWeight: 600,
+                      fontSize: 14,
+                    }}
+                  >
+                    <Plus size={16} />
+                    Add Player
+                  </button>
+                </div>
+                {loading && <p style={{ padding: 12 }}>Loading players…</p>}
+                {error && !loading && (
+                  <p style={{ padding: 12, color: "red" }}>{error}</p>
+                )}
                 <div className="table-container">
                   <table>
                     <thead>
@@ -108,20 +170,28 @@ export default function Dashboard() {
                       </tr>
                     </thead>
                     <tbody style={{ verticalAlign: "middle", fontWeight: 600 }}>
+                      {players.length === 0 && !loading && (
+                        <tr>
+                          <td colSpan={5} style={{ textAlign: "center", padding: 12, opacity: 0.7 }}>
+                            No players found. Add a player to get started.
+                          </td>
+                        </tr>
+                      )}
                       {players.map((p) => (
                         <tr key={p.id}>
                           <td>
                             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <img src={p.badge} alt="badge" style={{ height: 26 }} />
                               <div>
                                 {p.name}
-                                <div style={{ fontSize: 11, fontWeight: 400, opacity: 0.75 }}>{p.email}</div>
+                                {p.email && (
+                                  <div style={{ fontSize: 11, fontWeight: 400, opacity: 0.75 }}>{p.email}</div>
+                                )}
                               </div>
                             </div>
                           </td>
                           <td>{p.position}</td>
-                          <td><span className="number-highlight">{p.number}</span></td>
-                          <td>{p.lastGame}</td>
+                          <td><span className="number-highlight">{p.jerseyNumber || p.number}</span></td>
+                          <td>{p.lastGame || "—"}</td>
                           <td><button>Edit</button></td>
                         </tr>
                       ))}
@@ -144,6 +214,12 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+      {showAddPlayerForm && (
+        <AddPlayerForm
+          onClose={() => setShowAddPlayerForm(false)}
+          onSuccess={() => setShowAddPlayerForm(false)}
+        />
+      )}
     </div>
   );
 }
@@ -154,7 +230,7 @@ function SidebarLink({ to, label, icon: Icon }) {
     <NavLink
       to={to}
       className={({ isActive }) => `custom-button-style ${isActive ? "active" : ""}`}
-      end={to === "/"}
+      end={to === "/dashboard"}
     >
       <Icon className="h-4 w-4" />
       <span className="d-none d-sm-inline">{label}</span>

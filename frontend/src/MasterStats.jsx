@@ -1,5 +1,6 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
 import "./dashboard.css";
 import {
   Home,
@@ -17,43 +18,49 @@ import {
   Filter,
   Plus,
 } from "lucide-react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "./firebase";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db, auth } from "./firebase";
+import AddStatsForm from "./components/AddStatsForm";
 
 export default function MasterStats() {
-  const [rows, setRows] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState(null);
-  const [filterOpen, setFilterOpen] = React.useState(false);
-  const [query, setQuery] = React.useState("");
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [showAddStatsForm, setShowAddStatsForm] = useState(false);
+  const navigate = useNavigate();
 
-  React.useEffect(() => {
-    async function loadStats() {
-      try {
-        const snap = await getDocs(collection(db, "masterStats"));
-        // Expecting each doc to have fields matching the columns used below
-        const docs = snap.docs.map((doc) => doc.data());
+  // Firestore real-time listener: Use onSnapshot to update stats without page refresh
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(db, "masterStats"),
+      (snapshot) => {
+        const docs = snapshot.docs.map((doc) => doc.data());
         const mapped = docs.map((d) => [
-          d.name,
-          d.team,
-          d.pts,
-          d.fga,
-          d.fgm,
-          d.fgPct,
-          d.threePa,
-          d.threePm,
-          d.threePct,
-          d.fta,
+          d.name || "",
+          d.team || "",
+          d.pts ?? 0,
+          d.fga ?? 0,
+          d.fgm ?? 0,
+          d.fgPct ?? 0,
+          d.threePa ?? 0,
+          d.threePm ?? 0,
+          d.threePct ?? 0,
+          d.fta ?? 0,
         ]);
         setRows(mapped);
-      } catch (err) {
+        setLoading(false);
+        setError(null);
+      },
+      (err) => {
         console.error("Failed to load master stats from Firestore", err);
         setError("Failed to load master stats");
-      } finally {
         setLoading(false);
       }
-    }
-    loadStats();
+    );
+
+    return () => unsubscribe();
   }, []);
 
   const filteredRows = React.useMemo(() => {
@@ -86,8 +93,14 @@ export default function MasterStats() {
 
   function handleDownloadCsv() {
     const headers = ["Name", "Team", "PTS", "FGA", "FGM", "FG%", "3PA", "3PM", "3P%", "FTA"];
-    const csv =
-      [headers.join(","), ...filteredRows.map((r) => r.map(String).join(","))].join("\n");
+    const csvRows = filteredRows.map((r) => [
+      r[0], r[1], r[2], r[3], r[4],
+      typeof r[5] === 'number' ? (r[5] * 100).toFixed(1) + '%' : r[5],
+      r[6], r[7],
+      typeof r[8] === 'number' ? (r[8] * 100).toFixed(1) + '%' : r[8],
+      r[9]
+    ]);
+    const csv = [headers.join(","), ...csvRows.map((r) => r.map(String).join(","))].join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -101,6 +114,15 @@ export default function MasterStats() {
     console.log("More actions clicked.");
     alert("More actions coming soon.");
   }
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate("/");
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  };
   return (
     <div className="app-shell">
       {/* ===== Shared Sidebar (with icons) ===== */}
@@ -110,9 +132,9 @@ export default function MasterStats() {
         </div>
 
         <nav className="flex flex-col items-center gap-2 px-3 py-5 custom-text-style">
-          <SidebarLink to="/"            label="Dashboard"    icon={Home} />
-          <SidebarLink to="/masterstats" label="Master Stats" icon={PieChart} />
-          <SidebarLink to="/searchplayer"     label="Players"      icon={Users} />
+          <SidebarLink to="/dashboard" label="Dashboard"    icon={Home} />
+          <SidebarLink to="/stats" label="Master Stats" icon={PieChart} />
+          <SidebarLink to="/players"     label="Players"      icon={Users} />
           <SidebarLink to="/team"        label="Team Settings" icon={Wrench} />
 
           <div className="w-full mt-2" style={{ fontSize: 12, fontWeight: 800, opacity: 0.9, paddingLeft: 16 }}>
@@ -120,7 +142,14 @@ export default function MasterStats() {
           </div>
 
           <SidebarLink to="/profile" label="Profile" icon={UserIcon} />
-          <SidebarLink to="/logout"  label="Log Out" icon={LogOutIcon} />
+          <button
+            onClick={handleLogout}
+            className="custom-button-style"
+            style={{ background: "none", border: "none", cursor: "pointer", width: "210px" }}
+          >
+            <LogOutIcon className="h-4 w-4" />
+            <span className="d-none d-sm-inline">Log Out</span>
+          </button>
         </nav>
 
         <div className="px-4 pb-6 mt-auto">
@@ -171,6 +200,25 @@ export default function MasterStats() {
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 18 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <p style={{ margin: 0, fontWeight: 600 }}>Ateneo Golden Knights Master Stats</p>
+                    <button
+                      onClick={() => setShowAddStatsForm(true)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                        padding: "6px 12px",
+                        background: "#2432e3",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 6,
+                        cursor: "pointer",
+                        fontWeight: 600,
+                        fontSize: 13,
+                      }}
+                    >
+                      <Plus size={14} />
+                      Add Stats
+                    </button>
                     <button
                       type="button"
                       onClick={handleCopyLink}
@@ -276,9 +324,25 @@ export default function MasterStats() {
                       </tr>
                     </thead>
                     <tbody>
+                      {filteredRows.length === 0 && !loading && (
+                        <tr>
+                          <td colSpan={10} style={{ textAlign: "center", padding: 12, opacity: 0.7 }}>
+                            No stats found. Add stats to get started.
+                          </td>
+                        </tr>
+                      )}
                       {filteredRows.map((r, i) => (
                         <tr key={i}>
-                          {r.map((c, j) => <td key={j}>{c}</td>)}
+                          <td>{r[0]}</td>
+                          <td>{r[1]}</td>
+                          <td>{r[2]}</td>
+                          <td>{r[3]}</td>
+                          <td>{r[4]}</td>
+                          <td>{typeof r[5] === 'number' ? (r[5] * 100).toFixed(1) + '%' : r[5]}</td>
+                          <td>{r[6]}</td>
+                          <td>{r[7]}</td>
+                          <td>{typeof r[8] === 'number' ? (r[8] * 100).toFixed(1) + '%' : r[8]}</td>
+                          <td>{r[9]}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -304,6 +368,12 @@ export default function MasterStats() {
           </div>
         </div>
       </main>
+      {showAddStatsForm && (
+        <AddStatsForm
+          onClose={() => setShowAddStatsForm(false)}
+          onSuccess={() => setShowAddStatsForm(false)}
+        />
+      )}
     </div>
   );
 }
@@ -316,7 +386,7 @@ function SidebarLink({ to, label, icon: Icon }) {
       className={({ isActive }) =>
         `custom-button-style ${isActive ? "active" : ""}`
       }
-      end={to === "/"}
+      end={to === "/dashboard"}
     >
       <Icon className="h-4 w-4" />
       <span className="d-none d-sm-inline">{label}</span>
