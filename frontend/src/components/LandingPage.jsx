@@ -190,13 +190,7 @@ export default function LandingPage() {
           fontSize: 12,
           color: "#1565c0",
         }}>
-          <strong>Development Login:</strong>
-          <br />
-          Email: <code style={{ background: "rgba(255,255,255,0.7)", padding: "2px 4px", borderRadius: 3 }}>williams@gmail.com</code>
-          <br />
-          Password: <code style={{ background: "rgba(255,255,255,0.7)", padding: "2px 4px", borderRadius: 3 }}>123456</code>
-        </div>
-
+          
         {error && (
           <div style={{
             background: "#fee",
