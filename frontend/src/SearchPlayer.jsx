@@ -227,7 +227,7 @@ export default function SearchPlayer() {
                         <td><a className="edit-link" href="#">Edit</a></td>
                       </tr>
                     ))}
-                    {filtered.length === 0 && (
+                    {filtered.length === 0 && !loading && (
                       <tr>
                         <td colSpan={5} style={{ textAlign: "center", padding: 12, opacity: 0.7 }}>
                           No results found for “{query}”.

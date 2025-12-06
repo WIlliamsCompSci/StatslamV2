@@ -71,7 +71,7 @@ export default function MasterStats() {
       const team = String(r[1]).toLowerCase();
       return name.includes(q) || team.includes(q);
     });
-  }, [query]);
+  }, [rows, query]);
 
   function handleCopyLink() {
     const url = window.location.href;
